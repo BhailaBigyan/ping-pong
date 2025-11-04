@@ -1,21 +1,21 @@
 #include <raylib.h>
-#include <thread>
-#include <chrono>
 
-int screenWidth = 1000;
-int screenHeight = 600;
+int screenWidth = 1280;
+int screenHeight = 720;
 
 int player1Score = 0;
 int player2Score = 0;
 bool gameOver = false;
 
-class Ball {
+class Ball
+{
 public:
     float x, y;
     float speedX, speedY;
     float radius;
 
-    Ball() {
+    Ball()
+    {
         x = screenWidth / 2.0f;
         y = screenHeight / 2.0f;
         speedX = 7;
@@ -23,30 +23,36 @@ public:
         radius = 20;
     }
 
-    void draw() {
+    void draw()
+    {
         DrawCircle((int)x, (int)y, radius, WHITE);
     }
 
-    void update() {
+    void update()
+    {
         x += speedX;
         y += speedY;
 
-        if (y + radius >= screenHeight || y - radius <= 0) {
+        if (y + radius >= screenHeight || y - radius <= 0)
+        {
             speedY *= -1;
         }
 
-        if (x + radius >= screenWidth) {
+        if (x + radius >= screenWidth)
+        {
             player1Score++;
             reset();
         }
 
-        if (x - radius <= 0) {
+        if (x - radius <= 0)
+        {
             player2Score++;
             reset();
         }
     }
 
-    void reset() {
+    void reset()
+    {
         x = screenWidth / 2.0f;
         y = screenHeight / 2.0f;
         speedX *= -1;
@@ -54,7 +60,8 @@ public:
     }
 };
 
-class Paddle {
+class Paddle
+{
 public:
     float x, y;
     float width, height;
@@ -62,7 +69,8 @@ public:
     int upKey;
     int downKey;
 
-    Paddle(float x, float y, int upKey, int downKey) {
+    Paddle(float x, float y, int upKey, int downKey)
+    {
         this->x = x;
         this->y = y;
         this->width = 25;
@@ -72,42 +80,32 @@ public:
         this->downKey = downKey;
     }
 
-    void draw() {
+    void draw()
+    {
         DrawRectangle((int)x, (int)y, (int)width, (int)height, WHITE);
     }
 
-    void update() {
-        if (IsKeyDown(upKey) && y > 0) {
+    void update()
+    {
+        if (IsKeyDown(upKey) && y > 0)
+        {
             y -= speed;
         }
-        if (IsKeyDown(downKey) && y + height < screenHeight) {
+        if (IsKeyDown(downKey) && y + height < screenHeight)
+        {
             y += speed;
         }
     }
 };
 
-void showCountdown() {
-    for (int i = 3; i > 0; --i) {
-        BeginDrawing();
-        ClearBackground(BLACK);
-        DrawText(TextFormat("%d", i), screenWidth / 2 - 20, screenHeight / 2 - 50, 80, WHITE);
-        EndDrawing();
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-    BeginDrawing();
-    ClearBackground(BLACK);
-    DrawText("GO!", screenWidth / 2 - 60, screenHeight / 2 - 50, 80, GREEN);
-    EndDrawing();
-    std::this_thread::sleep_for(std::chrono::milliseconds(700));
-}
-
-int main() {
+int main()
+{
     InitWindow(screenWidth, screenHeight, "ABKR Ping Pong");
-    SetTargetFPS(60);
+    SetTargetFPS(120);
 
-  
     // Welcome screen
-    while (!IsKeyPressed(KEY_ENTER) && !WindowShouldClose()) {
+    while (!IsKeyPressed(KEY_ENTER) && !WindowShouldClose())
+    {
         BeginDrawing();
         ClearBackground(BLACK);
         DrawText("Welcome to ABKR Ping Pong", screenWidth / 2 - MeasureText("Welcome to ABKR Ping Pong", 30) / 2, screenHeight / 2 - 40, 30, WHITE);
@@ -117,7 +115,8 @@ int main() {
 
     // Instruction screen
     bool w = false, s = false, up = false, down = false;
-    while (!w || !s || !up || !down) {
+    while (!w || !s || !up || !down)
+    {
         BeginDrawing();
         ClearBackground(BLACK);
         DrawText("Controls:", screenWidth / 2 - MeasureText("Controls:", 30) / 2, 100, 30, WHITE);
@@ -126,33 +125,38 @@ int main() {
         DrawText("Press respective keys at least once to continue", screenWidth / 2 - 250, 300, 20, LIGHTGRAY);
         EndDrawing();
 
-        if (IsKeyPressed(KEY_W)) w = true;
-        if (IsKeyPressed(KEY_S)) s = true;
-        if (IsKeyPressed(KEY_UP)) up = true;
-        if (IsKeyPressed(KEY_DOWN)) down = true;
+        if (IsKeyPressed(KEY_W))
+            w = true;
+        if (IsKeyPressed(KEY_S))
+            s = true;
+        if (IsKeyPressed(KEY_UP))
+            up = true;
+        if (IsKeyPressed(KEY_DOWN))
+            down = true;
     }
-
-    // Countdown animation
-    showCountdown();
 
     Ball ball;
     Paddle paddle1(10, screenHeight / 2 - 60, KEY_W, KEY_S);
     Paddle paddle2(screenWidth - 35, screenHeight / 2 - 60, KEY_UP, KEY_DOWN);
 
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose())
+    {
         BeginDrawing();
 
-        if (!gameOver) {
-            ball.update(); // Update ball position
+        if (!gameOver)
+        {
+            ball.update();        // Update ball position
             ball.speedX += 0.001; // Gradually increase ball speed
             ball.speedY += 0.001;
             paddle1.update(); // Update paddle1 position
             paddle2.update(); // Update paddle2 position
 
-            if (CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius, Rectangle{paddle1.x, paddle1.y, paddle1.width, paddle1.height}) ||
-                CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius, Rectangle{paddle2.x, paddle2.y, paddle2.width, paddle2.height})) {
-                ball.speedX *= -1; // Reverse ball direction on paddle hit
-            } 
+            if (CheckCollisionCircleRec({ball.x, ball.y}, ball.radius, {paddle1.x, paddle1.y, paddle1.width, paddle1.height}) ||
+                CheckCollisionCircleRec({ball.x, ball.y}, ball.radius, {paddle2.x, paddle2.y, paddle2.width, paddle2.height}))
+            {
+
+                ball.speedX = -ball.speedX; // Bounce the ball
+            }
 
             ClearBackground(BLACK);
             DrawLine(screenWidth / 2, 0, screenWidth / 2, screenHeight, WHITE);
@@ -162,17 +166,21 @@ int main() {
             DrawText(TextFormat("Player 1 Score: %d", player1Score), 10, 10, 20, WHITE);
             DrawText(TextFormat("Player 2 Score: %d", player2Score), screenWidth - 200, 10, 20, WHITE);
             // Game over If any player reaches 20 points
-            if (player1Score >= 20 || player2Score >= 20) {
+            if (player1Score >= 20 || player2Score >= 20)
+            {
                 gameOver = true;
             }
-        } else {
+        }
+        else
+        {
             ClearBackground(BLACK);
-            const char* winnerText = player1Score >= 20 ? "Player 1 Wins!" : "Player 2 Wins!";
+            const char *winnerText = player1Score >= 20 ? "Player 1 Wins!" : "Player 2 Wins!";
             DrawText(winnerText, screenWidth / 2 - MeasureText(winnerText, 40) / 2, screenHeight / 2 - 50, 40, GREEN);
             DrawText("Press [R] to Restart", screenWidth / 2 - MeasureText("Press [R] to Restart", 20) / 2, screenHeight / 2 + 10, 20, WHITE);
             DrawText("Press [ESC] to Exit", screenWidth / 2 - MeasureText("Press [ESC] to Exit", 20) / 2, screenHeight / 2 + 40, 20, WHITE);
 
-            if (IsKeyPressed(KEY_R)) {
+            if (IsKeyPressed(KEY_R))
+            {
                 player1Score = 0;
                 player2Score = 0;
                 ball.reset();
